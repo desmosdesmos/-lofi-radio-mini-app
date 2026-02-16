@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lo-Fi Radio</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-color: #FFF9F0;
+            --accent: #FFC085;
+            --dark: #2D3748;
+            --grey: #718096;
+            --border: #CBD5E0;
+            --white: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 400px;
+            background: var(--bg-color);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            background: transparent;
+            border-radius: 18px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--grey);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: var(--dark);
+            border-color: var(--dark);
+        }
+
+        /* Vinyl Record */
+        .vinyl-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .vinyl {
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transition: transform 0.3s;
+        }
+
+        .vinyl.playing {
+            animation: rotate 6s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .vinyl::before {
+            content: '';
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            border: 2px solid var(--dark);
+        }
+
+        .vinyl-grooves {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 1px solid #4a5568;
+        }
+
+        .vinyl-grooves:nth-child(2) { width: 180px; height: 180px; }
+        .vinyl-grooves:nth-child(3) { width: 160px; height: 160px; }
+        .vinyl-grooves:nth-child(4) { width: 140px; height: 140px; }
+        .vinyl-grooves:nth-child(5) { width: 120px; height: 120px; }
+        .vinyl-grooves:nth-child(6) { width: 100px; height: 100px; }
+
+        .vinyl-label {
+            position: absolute;
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #f6ad55);
+            border: 2px solid var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .vinyl-label::before {
+            content: '';
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ed8936;
+        }
+
+        .vinyl-label::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--bg-color);
+        }
+
+        /* Info */
+        .track-info {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .track-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .track-subtitle {
+            font-size: 12px;
+            color: var(--grey);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 35px;
+            margin-bottom: 35px;
+        }
+
+        .ctrl-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.1s;
+        }
+
+        .ctrl-btn:active {
+            transform: scale(0.95);
+        }
+
+        .ctrl-btn.small {
+            width: 50px;
+            height: 50px;
+        }
+
+        .ctrl-btn.large {
+            width: 70px;
+            height: 70px;
+            background: var(--accent);
+            border: 2px solid var(--dark);
+            border-radius: 50%;
+        }
+
+        .ctrl-btn svg {
+            fill: var(--dark);
+        }
+
+        .ctrl-btn.small svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .ctrl-btn.large svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Visualizer */
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 4px;
+            height: 50px;
+            margin-bottom: 30px;
+        }
+
+        .visualizer-bar {
+            width: 10px;
+            background: var(--accent);
+            border-radius: 5px;
+            transition: height 0.1s;
+        }
+
+        /* Volume */
+        .volume {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .volume-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--dark);
+        }
+
+        .volume-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--white);
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--dark);
+            cursor: pointer;
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--dark);
+            cursor: pointer;
+        }
+
+        .volume-value {
+            width: 42px;
+            text-align: right;
+            font-size: 11px;
+            color: var(--grey);
+        }
+
+        /* Timer */
+        .timer-display {
+            text-align: center;
+            font-size: 10px;
+            color: var(--accent);
+            margin-bottom: 20px;
+            min-height: 15px;
+        }
+
+        /* Footer buttons */
+        .footer {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .footer-btn {
+            padding: 12px 8px;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .footer-btn:hover {
+            background: var(--accent);
+        }
+
+        .footer-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-color);
+            border-radius: 20px;
+            padding: 20px;
+            width: 300px;
+            max-width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--accent);
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        .modal-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 2px solid var(--dark);
+            cursor: pointer;
+        }
+
+        .modal-label {
+            text-align: center;
+            font-size: 14px;
+            color: var(--grey);
+            margin-bottom: 15px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .modal-btn.cancel {
+            background: var(--bg-color);
+            color: var(--grey);
+            border: 1px solid var(--border);
+        }
+
+        .modal-btn.ok {
+            background: var(--accent);
+            color: var(--dark);
+            border: 2px solid var(--dark);
+        }
+
+        /* Stations list */
+        .stations-list {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+
+        .station-item {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .station-item:hover {
+            background: rgba(255, 192, 133, 0.3);
+        }
+
+        .station-item.selected {
+            background: var(--accent);
+            border-color: var(--dark);
+        }
+
+        .station-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .station-genre {
+            font-size: 11px;
+            color: var(--grey);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn" data-index="0">Focus</button>
+            <button class="tab-btn active" data-index="1">Sleep</button>
+            <button class="tab-btn" data-index="2">Sunny</button>
+        </div>
+
+        <!-- Vinyl -->
+        <div class="vinyl-container">
+            <div class="vinyl" id="vinyl">
+                <div class="vinyl-grooves"></div>
+                <div class="vinyl-grooves"></div>
+                <div class="vinyl-grooves"></div>
+                <div class="vinyl-grooves"></div>
+                <div class="vinyl-grooves"></div>
+                <div class="vinyl-label"></div>
+            </div>
+        </div>
+
+        <!-- Track Info -->
+        <div class="track-info">
+            <div class="track-title" id="trackTitle">SomaFM Groove Salad</div>
+            <div class="track-subtitle" id="trackSubtitle">chillout · ambient · downtempo</div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="ctrl-btn small" id="prevBtn">
+                <svg viewBox="0 0 24 24"><path d="M17 17H15V7h2v10zm-2.5-5L8 7v10l6.5-5z"/></svg>
+            </button>
+            <button class="ctrl-btn large" id="playBtn">
+                <svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button class="ctrl-btn small" id="nextBtn">
+                <svg viewBox="0 0 24 24"><path d="M7 7h2v10H7zm2.5 5L16 17V7l-6.5 5z"/></svg>
+            </button>
+        </div>
+
+        <!-- Visualizer -->
+        <div class="visualizer" id="visualizer"></div>
+
+        <!-- Volume -->
+        <div class="volume">
+            <svg class="volume-icon" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+            </svg>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70">
+            <span class="volume-value" id="volumeValue">70%</span>
+        </div>
+
+        <!-- Timer Display -->
+        <div class="timer-display" id="timerDisplay"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <button class="footer-btn" id="sleepBtn">☾ Sleep</button>
+            <button class="footer-btn" id="stationsBtn">📻 Stations</button>
+            <button class="footer-btn" id="shareBtn">🔗 Share</button>
+            <button class="footer-btn" id="themeBtn">🎨 Theme</button>
+        </div>
+    </div>
+
+    <!-- Sleep Timer Modal -->
+    <div class="modal-overlay" id="sleepModal">
+        <div class="modal">
+            <div class="modal-title">☾ Sleep Timer</div>
+            <input type="range" class="modal-slider" id="sleepSlider" min="0" max="120" step="15" value="0">
+            <div class="modal-label" id="sleepLabel">Off</div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="sleepCancel">Cancel</button>
+                <button class="modal-btn ok" id="sleepOk">Set</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stations Modal -->
+    <div class="modal-overlay" id="stationsModal">
+        <div class="modal">
+            <div class="modal-title">📻 Radio Stations</div>
+            <ul class="stations-list" id="stationsList"></ul>
+            <button class="modal-btn ok" id="stationsClose" style="width:100%">Play Selected</button>
+        </div>
+    </div>
+
+    <script>
+        // Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        // Theme colors from Telegram
+        const theme = tg.themeParams;
+        if (theme.bg_color) {
+            document.documentElement.style.setProperty('--bg-color', theme.bg_color);
+        }
+
+        // Radio stations
+        const STATIONS = [
+            { name: "SomaFM Drone Zone", genre: "ambient · drone · sleep", url: "https://ice1.somafm.com/dronezone-128-mp3" },
+            { name: "SomaFM Groove Salad", genre: "chillout · ambient · downtempo", url: "https://ice1.somafm.com/groovesalad-128-mp3" },
+            { name: "SomaFM PopTron", genre: "upbeat · pop · electronic", url: "https://ice1.somafm.com/poptron-128-mp3" }
+        ];
+
+        // State
+        let currentStation = 1;
+        let isPlaying = false;
+        let audio = new Audio();
+        let sleepTimer = null;
+        let visualizerInterval = null;
+
+        // Elements
+        const vinyl = document.getElementById('vinyl');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        const trackTitle = document.getElementById('trackTitle');
+        const trackSubtitle = document.getElementById('trackSubtitle');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const visualizer = document.getElementById('visualizer');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+
+        // Initialize visualizer bars
+        for (let i = 0; i < 15; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'visualizer-bar';
+            bar.style.height = '5px';
+            visualizer.appendChild(bar);
+        }
+        const visualizerBars = document.querySelectorAll('.visualizer-bar');
+
+        // Initialize stations list
+        const stationsList = document.getElementById('stationsList');
+        STATIONS.forEach((station, i) => {
+            const li = document.createElement('li');
+            li.className = 'station-item' + (i === currentStation ? ' selected' : '');
+            li.innerHTML = `
+                <div class="station-name">🎵 ${station.name}</div>
+                <div class="station-genre">${station.genre}</div>
+            `;
+            li.addEventListener('click', () => selectStation(i));
+            stationsList.appendChild(li);
+        });
+        const stationItems = document.querySelectorAll('.station-item');
+
+        // Audio setup
+        audio.src = STATIONS[currentStation].url;
+        audio.volume = 0.7;
+
+        // Play/Pause
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+            } else {
+                audio.play();
+            }
+        }
+
+        function updatePlayState() {
+            isPlaying = !isPlaying;
+            
+            if (isPlaying) {
+                playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                vinyl.classList.add('playing');
+                startVisualizer();
+            } else {
+                playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                vinyl.classList.remove('playing');
+                stopVisualizer();
+            }
+        }
+
+        playBtn.addEventListener('click', togglePlay);
+
+        audio.addEventListener('play', () => {
+            isPlaying = true;
+            playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+            vinyl.classList.add('playing');
+            startVisualizer();
+        });
+
+        audio.addEventListener('pause', () => {
+            isPlaying = false;
+            playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            vinyl.classList.remove('playing');
+            stopVisualizer();
+        });
+
+        audio.addEventListener('waiting', () => {
+            // Loading state
+        });
+
+        audio.addEventListener('playing', () => {
+            // Ready state
+        });
+
+        audio.addEventListener('error', (e) => {
+            console.error('Audio error:', e);
+            isPlaying = false;
+            playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            vinyl.classList.remove('playing');
+            stopVisualizer();
+        });
+
+        // Station navigation
+        function setStation(index) {
+            if (index === currentStation) return;
+            
+            currentStation = index;
+            const wasPlaying = isPlaying;
+            
+            audio.pause();
+            audio.src = STATIONS[index].url;
+            trackTitle.textContent = STATIONS[index].name;
+            trackSubtitle.textContent = STATIONS[index].genre;
+            
+            // Update tabs
+            tabBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            
+            // Update stations list
+            stationItems.forEach((item, i) => {
+                item.classList.toggle('selected', i === index);
+            });
+            
+            if (wasPlaying) {
+                setTimeout(() => audio.play(), 500);
+            }
+        }
+
+        prevBtn.addEventListener('click', () => setStation((currentStation - 1 + 3) % 3));
+        nextBtn.addEventListener('click', () => setStation((currentStation + 1) % 3));
+
+        // Tab buttons
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => setStation(parseInt(btn.dataset.index)));
+        });
+
+        // Volume
+        volumeSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            audio.volume = value / 100;
+            volumeValue.textContent = value + '%';
+        });
+
+        // Visualizer
+        function startVisualizer() {
+            visualizerInterval = setInterval(() => {
+                visualizerBars.forEach(bar => {
+                    const height = Math.random() * 40 + 5;
+                    bar.style.height = height + 'px';
+                });
+            }, 100);
+        }
+
+        function stopVisualizer() {
+            clearInterval(visualizerInterval);
+            visualizerBars.forEach(bar => {
+                bar.style.height = '5px';
+            });
+        }
+
+        // Sleep Timer Modal
+        const sleepModal = document.getElementById('sleepModal');
+        const sleepSlider = document.getElementById('sleepSlider');
+        const sleepLabel = document.getElementById('sleepLabel');
+        const sleepBtn = document.getElementById('sleepBtn');
+        const sleepCancel = document.getElementById('sleepCancel');
+        const sleepOk = document.getElementById('sleepOk');
+
+        sleepSlider.addEventListener('input', () => {
+            const value = parseInt(sleepSlider.value);
+            sleepLabel.textContent = value === 0 ? 'Off' : value + ' min';
+        });
+
+        sleepBtn.addEventListener('click', () => {
+            sleepModal.classList.add('active');
+        });
+
+        sleepCancel.addEventListener('click', () => {
+            sleepModal.classList.remove('active');
+        });
+
+        sleepOk.addEventListener('click', () => {
+            const minutes = parseInt(sleepSlider.value);
+            sleepModal.classList.remove('active');
+            
+            if (minutes > 0) {
+                timerDisplay.textContent = '☾ Sleep: ' + minutes + ' min';
+                if (sleepTimer) clearTimeout(sleepTimer);
+                sleepTimer = setTimeout(() => {
+                    audio.pause();
+                    timerDisplay.textContent = '☾ Good night! ♡';
+                    setTimeout(() => timerDisplay.textContent = '', 3000);
+                }, minutes * 60 * 1000);
+            } else {
+                timerDisplay.textContent = '';
+                if (sleepTimer) clearTimeout(sleepTimer);
+            }
+        });
+
+        // Stations Modal
+        const stationsModal = document.getElementById('stationsModal');
+        const stationsBtn = document.getElementById('stationsBtn');
+        const stationsClose = document.getElementById('stationsClose');
+
+        function selectStation(index) {
+            currentStation = index;
+            stationItems.forEach((item, i) => {
+                item.classList.toggle('selected', i === index);
+            });
+        }
+
+        stationsBtn.addEventListener('click', () => {
+            stationsModal.classList.add('active');
+        });
+
+        stationsClose.addEventListener('click', () => {
+            stationsModal.classList.remove('active');
+            setStation(currentStation);
+        });
+
+        // Share button
+        const shareBtn = document.getElementById('shareBtn');
+        shareBtn.addEventListener('click', () => {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Lo-Fi Radio',
+                    text: 'Listen to Lo-Fi Radio',
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                tg.showAlert('Link copied to clipboard!');
+            }
+        });
+
+        // Theme button (cycle through themes)
+        const themeBtn = document.getElementById('themeBtn');
+        const themes = [
+            { bg: '#FFF9F0', accent: '#FFC085' },
+            { bg: '#1a202c', accent: '#63b3ed', text: '#e2e8f0' },
+            { bg: '#2d3748', accent: '#9f7aea', text: '#e2e8f0' }
+        ];
+        let themeIndex = 0;
+
+        themeBtn.addEventListener('click', () => {
+            themeIndex = (themeIndex + 1) % themes.length;
+            const t = themes[themeIndex];
+            document.documentElement.style.setProperty('--bg-color', t.bg);
+            document.documentElement.style.setProperty('--accent', t.accent);
+            if (t.text) {
+                document.documentElement.style.setProperty('--dark', t.text);
+            }
+        });
+
+        // Handle Telegram Back button
+        tg.onEvent('backButtonClicked', () => {
+            sleepModal.classList.remove('active');
+            stationsModal.classList.remove('active');
+        });
+
+        // Update main button
+        tg.MainButton.setText('PLAY');
+        tg.MainButton.onClick(togglePlay);
+    </script>
+</body>
+</html>
