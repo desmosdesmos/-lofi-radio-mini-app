@@ -55,12 +55,39 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         }
 
-        /* Station Indicator */
-        .station-indicator {
-            text-align: center;
+        /* Station Tabs */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            flex: 0 0 auto;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            background: var(--bg-color);
+            border-radius: 16px;
+            font-family: inherit;
             font-size: 11px;
+            font-weight: 600;
             color: var(--grey);
-            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: var(--dark);
+            border-color: var(--dark);
         }
 
         /* Vinyl Record */
@@ -346,9 +373,12 @@
             background: var(--bg-color);
             border-radius: 20px;
             padding: 20px;
-            width: 300px;
+            width: 320px;
             max-width: 90%;
+            max-height: 80vh;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-title {
@@ -420,12 +450,16 @@
         .stations-list {
             list-style: none;
             margin-bottom: 15px;
+            max-height: 320px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1;
         }
 
         .station-item {
-            padding: 12px;
+            padding: 10px 12px;
             border-radius: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             border: 2px solid transparent;
             cursor: pointer;
             transition: all 0.2s;
@@ -443,20 +477,20 @@
         .station-name {
             font-weight: 600;
             color: var(--dark);
+            font-size: 12px;
         }
 
         .station-genre {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--grey);
+            margin-top: 2px;
         }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- Station Indicator -->
-        <div class="track-info" style="margin-bottom: 15px;">
-            <div class="track-subtitle" id="stationIndicator">Station 1 / 11</div>
-        </div>
+        <!-- Station Tabs -->
+        <div class="tabs" id="stationTabs"></div>
 
         <!-- Vinyl -->
         <div class="vinyl-container">
@@ -576,7 +610,7 @@
         const trackSubtitle = document.getElementById('trackSubtitle');
         const timerDisplay = document.getElementById('timerDisplay');
         const visualizer = document.getElementById('visualizer');
-        const stationIndicator = document.getElementById('stationIndicator');
+        const stationTabs = document.getElementById('stationTabs');
 
         // Initialize visualizer bars
         for (let i = 0; i < 15; i++) {
@@ -586,6 +620,16 @@
             visualizer.appendChild(bar);
         }
         const visualizerBars = document.querySelectorAll('.visualizer-bar');
+
+        // Create station tabs
+        STATIONS.forEach((station, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'tab-btn' + (i === currentStation ? ' active' : '');
+            btn.textContent = station.name.split(' ').slice(0, 2).join(' ');
+            btn.addEventListener('click', () => setStation(i));
+            stationTabs.appendChild(btn);
+        });
+        const tabBtns = document.querySelectorAll('.tab-btn');
 
         // Initialize stations list
         const stationsList = document.getElementById('stationsList');
@@ -649,7 +693,7 @@
         // Station navigation
         function setStation(index) {
             if (index === currentStation) return;
-            
+
             initAudio();
 
             currentStation = index;
@@ -660,8 +704,10 @@
             trackTitle.textContent = STATIONS[index].name;
             trackSubtitle.textContent = STATIONS[index].genre;
 
-            // Update station indicator
-            stationIndicator.textContent = 'Station ' + (index + 1) + ' / ' + STATIONS.length;
+            // Update tabs
+            tabBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
 
             // Update stations list
             stationItems.forEach((item, i) => {
@@ -793,16 +839,7 @@
         stationsClose.addEventListener('click', () => {
             stationsModal.classList.remove('active');
             // Переключаем станцию с воспроизведением
-            initAudio();
-            const wasPlaying = isPlaying;
-            audio.pause();
-            audio.src = STATIONS[currentStation].url;
-            trackTitle.textContent = STATIONS[currentStation].name;
-            trackSubtitle.textContent = STATIONS[currentStation].genre;
-            stationIndicator.textContent = 'Station ' + (currentStation + 1) + ' / ' + STATIONS.length;
-            if (wasPlaying) {
-                setTimeout(() => audio.play(), 500);
-            }
+            setStation(currentStation);
         });
 
         // Share button
