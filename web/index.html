@@ -565,20 +565,7 @@
     <script>
         // Telegram WebApp
         const tg = window.Telegram.WebApp;
-        
-        // Инициализация
         tg.ready();
-        tg.MainButton.hide();
-        
-        // Настройка цветов из темы Telegram
-        if (tg.themeParams) {
-            const p = tg.themeParams;
-            if (p.bg_color) document.documentElement.style.setProperty('--bg-color', p.bg_color);
-            if (p.button_color) document.documentElement.style.setProperty('--accent', p.button_color);
-            if (p.text_color) document.documentElement.style.setProperty('--dark', p.text_color);
-            if (p.hint_color) document.documentElement.style.setProperty('--grey', p.hint_color);
-            if (p.secondary_bg_color) document.documentElement.style.setProperty('--border', p.secondary_bg_color);
-        }
 
         // Radio stations
         const STATIONS = [
@@ -833,7 +820,6 @@
             isDarkTheme = !isDarkTheme;
             document.body.classList.toggle('dark-theme', isDarkTheme);
             themeBtn.textContent = isDarkTheme ? '☀ Light' : '☾ Dark';
-            tg.HeaderColor = isDarkTheme ? '#1a202c' : '#FFF9F0';
         });
 
         // Handle Telegram Back button
@@ -845,16 +831,6 @@
         // Update main button
         tg.MainButton.setText('PLAY');
         tg.MainButton.onClick(togglePlay);
-        
-        // Show main button when playing
-        audio.addEventListener('play', () => {
-            tg.MainButton.show();
-            tg.MainButton.setText('PAUSE');
-        });
-        
-        audio.addEventListener('pause', () => {
-            tg.MainButton.setText('PLAY');
-        });
     </script>
 </body>
 </html>
