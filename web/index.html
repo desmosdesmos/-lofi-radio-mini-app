@@ -17,12 +17,23 @@
         }
 
         :root {
-            --bg-color: #FFF9F0;
+            --bg-color: #FFFFFF;
             --accent: #FFC085;
             --dark: #2D3748;
             --grey: #718096;
-            --border: #CBD5E0;
+            --border: #E2E8F0;
             --white: #FFFFFF;
+            --slider-bg: #EDF2F7;
+        }
+
+        body.dark-theme {
+            --bg-color: #1a202c;
+            --accent: #63b3ed;
+            --dark: #E2E8F0;
+            --grey: #A0AEC0;
+            --border: #4A5568;
+            --white: #2D3748;
+            --slider-bg: #4A5568;
         }
 
         body {
@@ -31,8 +42,8 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            align-items: flex-start;
+            padding: 10px;
         }
 
         .app {
@@ -40,25 +51,25 @@
             max-width: 400px;
             background: var(--bg-color);
             border-radius: 20px;
-            padding: 24px;
+            padding: 16px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         }
 
         /* Tabs */
         .tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 40px;
+            gap: 8px;
+            margin-bottom: 20px;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 10px 16px;
+            padding: 8px 12px;
             border: 1px solid var(--border);
             background: transparent;
             border-radius: 18px;
             font-family: inherit;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--grey);
             cursor: pointer;
@@ -75,12 +86,12 @@
         .vinyl-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
 
         .vinyl {
-            width: 260px;
-            height: 260px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
             background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
             position: relative;
@@ -103,30 +114,30 @@
         .vinyl::before {
             content: '';
             position: absolute;
-            width: 240px;
-            height: 240px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             border: 2px solid var(--dark);
         }
 
         .vinyl-grooves {
             position: absolute;
-            width: 200px;
-            height: 200px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             border: 1px solid #4a5568;
         }
 
-        .vinyl-grooves:nth-child(2) { width: 180px; height: 180px; }
-        .vinyl-grooves:nth-child(3) { width: 160px; height: 160px; }
-        .vinyl-grooves:nth-child(4) { width: 140px; height: 140px; }
-        .vinyl-grooves:nth-child(5) { width: 120px; height: 120px; }
-        .vinyl-grooves:nth-child(6) { width: 100px; height: 100px; }
+        .vinyl-grooves:nth-child(2) { width: 140px; height: 140px; }
+        .vinyl-grooves:nth-child(3) { width: 120px; height: 120px; }
+        .vinyl-grooves:nth-child(4) { width: 100px; height: 100px; }
+        .vinyl-grooves:nth-child(5) { width: 80px; height: 80px; }
+        .vinyl-grooves:nth-child(6) { width: 60px; height: 60px; }
 
         .vinyl-label {
             position: absolute;
-            width: 96px;
-            height: 96px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), #f6ad55);
             border: 2px solid var(--dark);
@@ -137,8 +148,8 @@
 
         .vinyl-label::before {
             content: '';
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #ed8936;
         }
@@ -155,18 +166,18 @@
         /* Info */
         .track-info {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 20px;
         }
 
         .track-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--dark);
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .track-subtitle {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--grey);
         }
 
@@ -175,8 +186,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 35px;
-            margin-bottom: 35px;
+            gap: 25px;
+            margin-bottom: 20px;
         }
 
         .ctrl-btn {
@@ -194,13 +205,13 @@
         }
 
         .ctrl-btn.small {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
         }
 
         .ctrl-btn.large {
-            width: 70px;
-            height: 70px;
+            width: 56px;
+            height: 56px;
             background: var(--accent);
             border: 2px solid var(--dark);
             border-radius: 50%;
@@ -211,13 +222,13 @@
         }
 
         .ctrl-btn.small svg {
-            width: 28px;
-            height: 28px;
+            width: 22px;
+            height: 22px;
         }
 
         .ctrl-btn.large svg {
-            width: 32px;
-            height: 32px;
+            width: 26px;
+            height: 26px;
         }
 
         /* Visualizer */
@@ -225,15 +236,15 @@
             display: flex;
             justify-content: center;
             align-items: flex-end;
-            gap: 4px;
-            height: 50px;
-            margin-bottom: 30px;
+            gap: 3px;
+            height: 35px;
+            margin-bottom: 15px;
         }
 
         .visualizer-bar {
-            width: 10px;
+            width: 6px;
             background: var(--accent);
-            border-radius: 5px;
+            border-radius: 3px;
             transition: height 0.1s;
         }
 
@@ -241,13 +252,13 @@
         .volume {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 25px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .volume-icon {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             fill: var(--dark);
         }
 
@@ -257,15 +268,15 @@
             appearance: none;
             height: 6px;
             border-radius: 3px;
-            background: var(--white);
+            background: var(--slider-bg);
             outline: none;
         }
 
         .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: var(--accent);
             border: 2px solid var(--dark);
@@ -273,8 +284,8 @@
         }
 
         .volume-slider::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: var(--accent);
             border: 2px solid var(--dark);
@@ -282,7 +293,7 @@
         }
 
         .volume-value {
-            width: 42px;
+            width: 36px;
             text-align: right;
             font-size: 11px;
             color: var(--grey);
@@ -293,28 +304,29 @@
             text-align: center;
             font-size: 10px;
             color: var(--accent);
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             min-height: 15px;
         }
 
         /* Footer buttons */
         .footer {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            display: flex;
+            gap: 8px;
         }
 
         .footer-btn {
-            padding: 12px 8px;
+            flex: 1;
+            padding: 10px 8px;
             background: var(--bg-color);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 10px;
             font-family: inherit;
             font-size: 11px;
             font-weight: 600;
             color: var(--dark);
             cursor: pointer;
             transition: background 0.2s;
+            white-space: nowrap;
         }
 
         .footer-btn:hover {
@@ -509,9 +521,9 @@
         <!-- Footer -->
         <div class="footer">
             <button class="footer-btn" id="sleepBtn">☾ Sleep</button>
-            <button class="footer-btn" id="stationsBtn">📻 Stations</button>
-            <button class="footer-btn" id="shareBtn">🔗 Share</button>
-            <button class="footer-btn" id="themeBtn">🎨 Theme</button>
+            <button class="footer-btn" id="stationsBtn">📻</button>
+            <button class="footer-btn" id="shareBtn">♡</button>
+            <button class="footer-btn" id="themeBtn">☾ Dark</button>
         </div>
     </div>
 
@@ -793,23 +805,14 @@
             }
         });
 
-        // Theme button (cycle through themes)
+        // Theme button (toggle light/dark)
         const themeBtn = document.getElementById('themeBtn');
-        const themes = [
-            { bg: '#FFF9F0', accent: '#FFC085' },
-            { bg: '#1a202c', accent: '#63b3ed', text: '#e2e8f0' },
-            { bg: '#2d3748', accent: '#9f7aea', text: '#e2e8f0' }
-        ];
-        let themeIndex = 0;
+        let isDarkTheme = false;
 
         themeBtn.addEventListener('click', () => {
-            themeIndex = (themeIndex + 1) % themes.length;
-            const t = themes[themeIndex];
-            document.documentElement.style.setProperty('--bg-color', t.bg);
-            document.documentElement.style.setProperty('--accent', t.accent);
-            if (t.text) {
-                document.documentElement.style.setProperty('--dark', t.text);
-            }
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('dark-theme', isDarkTheme);
+            themeBtn.textContent = isDarkTheme ? '☀ Light' : '☾ Dark';
         });
 
         // Handle Telegram Back button
