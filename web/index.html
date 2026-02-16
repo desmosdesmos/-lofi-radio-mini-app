@@ -279,6 +279,7 @@
             width: 20px;
             height: 20px;
             fill: var(--dark);
+            flex-shrink: 0;
         }
 
         .volume-slider {
@@ -289,33 +290,38 @@
             border-radius: 3px;
             background: var(--slider-bg);
             outline: none;
+            cursor: pointer;
+            touch-action: manipulation;
         }
 
         .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: var(--accent);
             border: 2px solid var(--dark);
             cursor: pointer;
+            touch-action: manipulation;
         }
 
         .volume-slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: var(--accent);
             border: 2px solid var(--dark);
             cursor: pointer;
+            touch-action: manipulation;
         }
 
         .volume-value {
-            width: 36px;
+            width: 40px;
             text-align: right;
             font-size: 11px;
             color: var(--grey);
+            flex-shrink: 0;
         }
 
         /* Timer */
@@ -517,7 +523,7 @@
 
         <!-- Track Info -->
         <div class="track-info">
-            <div class="track-title" id="trackTitle">SomaFM Drone Zone</div>
+            <div class="track-title" id="trackTitle">Drone Zone</div>
             <div class="track-subtitle" id="trackSubtitle">ambient · drone · sleep</div>
         </div>
 
@@ -587,17 +593,17 @@
 
         // Radio stations - проверенные рабочие потоки (спокойная музыка)
         const STATIONS = [
-            { name: "SomaFM Drone Zone", genre: "ambient · drone · sleep", url: "https://ice1.somafm.com/dronezone-128-mp3" },
+            { name: "Drone Zone", genre: "ambient · drone · sleep", url: "https://ice1.somafm.com/dronezone-128-mp3" },
             { name: "Smooth Chill", genre: "smooth · chillout · relax", url: "https://media-ssl.musicradio.com/SmoothChill" },
             { name: "Lofi Girl", genre: "lofi hip hop · study · relax", url: "https://play.streamafrica.net/lofiradio" },
-            { name: "SomaFM Groove Salad", genre: "chillout · ambient · downtempo", url: "https://ice1.somafm.com/groovesalad-128-mp3" },
-            { name: "SomaFM Space Station", genre: "space ambient · downtempo · chill", url: "https://ice1.somafm.com/spacestation-128-mp3" },
-            { name: "SomaFM Deep Space One", genre: "deep ambient · space · relax", url: "https://ice1.somafm.com/deepspaceone-128-mp3" },
-            { name: "SomaFM Secret Agent", genre: "liquid drum n bass · chill", url: "https://ice1.somafm.com/secretagent-128-mp3" },
-            { name: "SomaFM Beat Blender", genre: "deep beats · downtempo · chill", url: "https://ice1.somafm.com/beatblender-128-mp3" },
-            { name: "SomaFM Fluid", genre: "fluidic beats · chill · downtempo", url: "https://ice1.somafm.com/fluid-128-mp3" },
-            { name: "SomaFM PopTron", genre: "upbeat · pop · electronic", url: "https://ice1.somafm.com/poptron-128-mp3" },
-            { name: "SomaFM Def Con", genre: "industrial · noise · techno", url: "https://ice1.somafm.com/defcon-128-mp3" }
+            { name: "Groove Salad", genre: "chillout · ambient · downtempo", url: "https://ice1.somafm.com/groovesalad-128-mp3" },
+            { name: "Space Station", genre: "space ambient · downtempo · chill", url: "https://ice1.somafm.com/spacestation-128-mp3" },
+            { name: "Deep Space One", genre: "deep ambient · space · relax", url: "https://ice1.somafm.com/deepspaceone-128-mp3" },
+            { name: "Secret Agent", genre: "liquid drum n bass · chill", url: "https://ice1.somafm.com/secretagent-128-mp3" },
+            { name: "Beat Blender", genre: "deep beats · downtempo · chill", url: "https://ice1.somafm.com/beatblender-128-mp3" },
+            { name: "Fluid", genre: "fluidic beats · chill · downtempo", url: "https://ice1.somafm.com/fluid-128-mp3" },
+            { name: "PopTron", genre: "upbeat · pop · electronic", url: "https://ice1.somafm.com/poptron-128-mp3" },
+            { name: "Def Con", genre: "industrial · noise · techno", url: "https://ice1.somafm.com/defcon-128-mp3" }
         ];
 
         // State
@@ -741,19 +747,20 @@
 
         // Volume - fix for mobile
         function setVolume(value) {
-            const vol = value / 100;
-            audio.volume = vol;
-            volumeValue.textContent = value + '%';
-            volumeSlider.value = value;
-            console.log('Volume set to:', vol);
+            initAudio();
+            const vol = parseFloat(value) / 100;
+            if (audio) {
+                audio.volume = vol;
+            }
+            volumeValue.textContent = Math.round(value) + '%';
         }
 
         // Обработка событий ползунка
         volumeSlider.addEventListener('input', (e) => {
             setVolume(e.target.value);
-        });
+        }, { passive: true });
 
-        // Для мобильных устройств
+        // Для мобильных устройств - touch события
         volumeSlider.addEventListener('touchstart', (e) => {
             setVolume(e.target.value);
         }, { passive: true });
@@ -763,6 +770,11 @@
         }, { passive: true });
 
         volumeSlider.addEventListener('touchend', (e) => {
+            setVolume(e.target.value);
+        }, { passive: true });
+
+        // Также обрабатываем change
+        volumeSlider.addEventListener('change', (e) => {
             setVolume(e.target.value);
         });
 
