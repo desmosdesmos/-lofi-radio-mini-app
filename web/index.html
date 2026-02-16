@@ -311,30 +311,42 @@
         /* Footer buttons */
         .footer {
             display: flex;
-            gap: 8px;
+            gap: 6px;
+            margin-top: 10px;
         }
 
         .footer-btn {
             flex: 1;
-            padding: 10px 8px;
-            background: var(--bg-color);
+            padding: 8px 6px;
+            background: var(--white);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 8px;
             font-family: inherit;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--dark);
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
             white-space: nowrap;
         }
 
         .footer-btn:hover {
-            background: var(--accent);
+            background: var(--dark);
+            color: var(--white);
+            border-color: var(--dark);
         }
 
         .footer-btn:active {
-            transform: scale(0.98);
+            transform: scale(0.96);
+        }
+
+        .footer-btn.sleep {
+            background: var(--bg-color);
+        }
+
+        .footer-btn.theme {
+            background: var(--dark);
+            color: var(--white);
         }
 
         /* Modal */
@@ -521,10 +533,10 @@
 
         <!-- Footer -->
         <div class="footer">
-            <button class="footer-btn" id="sleepBtn">☾ Sleep</button>
-            <button class="footer-btn" id="stationsBtn">📻</button>
-            <button class="footer-btn" id="shareBtn">♡</button>
-            <button class="footer-btn" id="themeBtn">☾ Dark</button>
+            <button class="footer-btn sleep" id="sleepBtn">☾ Sleep</button>
+            <button class="footer-btn" id="stationsBtn">📻 Stations</button>
+            <button class="footer-btn" id="shareBtn">♡ Share</button>
+            <button class="footer-btn theme" id="themeBtn">☾ Dark</button>
         </div>
     </div>
 
@@ -682,6 +694,12 @@
         });
 
         // Volume
+        volumeSlider.addEventListener('change', (e) => {
+            const value = e.target.value;
+            audio.volume = value / 100;
+            volumeValue.textContent = value + '%';
+        });
+
         volumeSlider.addEventListener('input', (e) => {
             const value = e.target.value;
             audio.volume = value / 100;
