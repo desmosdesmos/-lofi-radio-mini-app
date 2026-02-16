@@ -311,42 +311,36 @@
         /* Footer buttons */
         .footer {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             margin-top: 10px;
         }
 
         .footer-btn {
             flex: 1;
-            padding: 8px 6px;
-            background: var(--white);
+            padding: 10px 8px;
+            background: var(--bg-color);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             font-family: inherit;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--dark);
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         .footer-btn:hover {
-            background: var(--dark);
-            color: var(--white);
+            background: var(--accent);
             border-color: var(--dark);
         }
 
         .footer-btn:active {
             transform: scale(0.96);
-        }
-
-        .footer-btn.sleep {
-            background: var(--bg-color);
-        }
-
-        .footer-btn.theme {
-            background: var(--dark);
-            color: var(--white);
         }
 
         /* Modal */
@@ -533,10 +527,10 @@
 
         <!-- Footer -->
         <div class="footer">
-            <button class="footer-btn sleep" id="sleepBtn">☾ Sleep</button>
-            <button class="footer-btn" id="stationsBtn">📻 Stations</button>
-            <button class="footer-btn" id="shareBtn">♡ Share</button>
-            <button class="footer-btn theme" id="themeBtn">☾ Dark</button>
+            <button class="footer-btn" id="sleepBtn">Sleep</button>
+            <button class="footer-btn" id="stationsBtn">Stations</button>
+            <button class="footer-btn" id="shareBtn">Share</button>
+            <button class="footer-btn" id="themeBtn">Dark</button>
         </div>
     </div>
 
@@ -692,17 +686,27 @@
             btn.addEventListener('click', () => setStation(parseInt(btn.dataset.index)));
         });
 
-        // Volume
-        volumeSlider.addEventListener('change', (e) => {
-            const value = e.target.value;
+        // Volume - fix for mobile
+        function setVolume(value) {
             audio.volume = value / 100;
             volumeValue.textContent = value + '%';
-        });
+            volumeSlider.value = value;
+        }
 
         volumeSlider.addEventListener('input', (e) => {
-            const value = e.target.value;
-            audio.volume = value / 100;
-            volumeValue.textContent = value + '%';
+            setVolume(e.target.value);
+        });
+
+        volumeSlider.addEventListener('change', (e) => {
+            setVolume(e.target.value);
+        });
+
+        volumeSlider.addEventListener('touchmove', (e) => {
+            setVolume(e.target.value);
+        });
+
+        volumeSlider.addEventListener('touchend', (e) => {
+            setVolume(e.target.value);
         });
 
         // Visualizer
@@ -804,10 +808,10 @@
                 navigator.share({
                     title: 'Lo-Fi Radio',
                     text: 'Listen to Lo-Fi Radio',
-                    url: window.location.href
+                    url: 'https://t.me/lofilive_bot'
                 });
             } else {
-                navigator.clipboard.writeText(window.location.href);
+                navigator.clipboard.writeText('https://t.me/lofilive_bot');
                 tg.showAlert('Link copied to clipboard!');
             }
         });
@@ -819,7 +823,7 @@
         themeBtn.addEventListener('click', () => {
             isDarkTheme = !isDarkTheme;
             document.body.classList.toggle('dark-theme', isDarkTheme);
-            themeBtn.textContent = isDarkTheme ? '☀ Light' : '☾ Dark';
+            themeBtn.textContent = isDarkTheme ? 'Light' : 'Dark';
         });
 
         // Handle Telegram Back button
