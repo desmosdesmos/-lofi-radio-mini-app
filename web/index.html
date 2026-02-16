@@ -414,17 +414,18 @@
             font-weight: 600;
             cursor: pointer;
             border: none;
+            transition: all 0.2s;
         }
 
         .modal-btn.cancel {
-            background: var(--bg-color);
-            color: var(--grey);
+            background: var(--white);
+            color: var(--dark);
             border: 1px solid var(--border);
         }
 
         .modal-btn.ok {
-            background: var(--accent);
-            color: var(--dark);
+            background: var(--dark);
+            color: var(--white);
             border: 2px solid var(--dark);
         }
 
@@ -555,12 +556,6 @@
         tg.ready();
         tg.expand();
 
-        // Theme colors from Telegram
-        const theme = tg.themeParams;
-        if (theme.bg_color) {
-            document.documentElement.style.setProperty('--bg-color', theme.bg_color);
-        }
-
         // Radio stations
         const STATIONS = [
             { name: "SomaFM Drone Zone", genre: "ambient · drone · sleep", url: "https://ice1.somafm.com/dronezone-128-mp3" },
@@ -573,6 +568,8 @@
         let isPlaying = false;
         let audio = new Audio();
         let sleepTimer = null;
+        let sleepEndTime = null;
+        let countdownInterval = null;
         let visualizerInterval = null;
 
         // Elements
@@ -625,20 +622,6 @@
             }
         }
 
-        function updatePlayState() {
-            isPlaying = !isPlaying;
-            
-            if (isPlaying) {
-                playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                vinyl.classList.add('playing');
-                startVisualizer();
-            } else {
-                playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-                vinyl.classList.remove('playing');
-                stopVisualizer();
-            }
-        }
-
         playBtn.addEventListener('click', togglePlay);
 
         audio.addEventListener('play', () => {
@@ -655,14 +638,6 @@
             stopVisualizer();
         });
 
-        audio.addEventListener('waiting', () => {
-            // Loading state
-        });
-
-        audio.addEventListener('playing', () => {
-            // Ready state
-        });
-
         audio.addEventListener('error', (e) => {
             console.error('Audio error:', e);
             isPlaying = false;
@@ -674,25 +649,25 @@
         // Station navigation
         function setStation(index) {
             if (index === currentStation) return;
-            
+
             currentStation = index;
             const wasPlaying = isPlaying;
-            
+
             audio.pause();
             audio.src = STATIONS[index].url;
             trackTitle.textContent = STATIONS[index].name;
             trackSubtitle.textContent = STATIONS[index].genre;
-            
+
             // Update tabs
             tabBtns.forEach((btn, i) => {
                 btn.classList.toggle('active', i === index);
             });
-            
+
             // Update stations list
             stationItems.forEach((item, i) => {
                 item.classList.toggle('selected', i === index);
             });
-            
+
             if (wasPlaying) {
                 setTimeout(() => audio.play(), 500);
             }
@@ -754,18 +729,33 @@
         sleepOk.addEventListener('click', () => {
             const minutes = parseInt(sleepSlider.value);
             sleepModal.classList.remove('active');
-            
+
+            if (countdownInterval) clearInterval(countdownInterval);
+
             if (minutes > 0) {
-                timerDisplay.textContent = '☾ Sleep: ' + minutes + ' min';
+                sleepEndTime = Date.now() + minutes * 60 * 1000;
                 if (sleepTimer) clearTimeout(sleepTimer);
+                
                 sleepTimer = setTimeout(() => {
                     audio.pause();
                     timerDisplay.textContent = '☾ Good night! ♡';
+                    if (countdownInterval) clearInterval(countdownInterval);
                     setTimeout(() => timerDisplay.textContent = '', 3000);
+                    sleepEndTime = null;
                 }, minutes * 60 * 1000);
+
+                // Live countdown
+                countdownInterval = setInterval(() => {
+                    const remaining = Math.max(0, Math.floor((sleepEndTime - Date.now()) / 1000));
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    timerDisplay.textContent = '☾ ' + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                }, 1000);
             } else {
                 timerDisplay.textContent = '';
                 if (sleepTimer) clearTimeout(sleepTimer);
+                if (countdownInterval) clearInterval(countdownInterval);
+                sleepEndTime = null;
             }
         });
 
