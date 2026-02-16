@@ -112,13 +112,14 @@
             width: 200px;
             height: 200px;
             border-radius: 50%;
-            background: radial-gradient(circle, #1a202c 0%, #2d3748 40%, #1a202c 100%);
+            background: #1a202c;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             transition: transform 0.3s;
+            overflow: hidden;
         }
 
         .vinyl.playing {
@@ -130,20 +131,38 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Бороздки пластинки */
-        .vinyl-groove {
-            position: absolute;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
+        /* Текстура бороздок через repeating radial gradient */
         .vinyl::before {
             content: '';
             position: absolute;
-            width: 180px;
-            height: 180px;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            border: 2px solid var(--dark);
+            background: repeating-radial-gradient(
+                circle at center,
+                #1a202c 0px,
+                #1a202c 2px,
+                #2d3748 2px,
+                #2d3748 4px
+            );
+            opacity: 0.5;
+        }
+
+        /* Блик на поверхности */
+        .vinyl::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 45%,
+                rgba(255,255,255,0.03) 50%,
+                transparent 55%
+            );
+            pointer-events: none;
         }
 
         .vinyl-grooves {
@@ -166,7 +185,7 @@
             height: 70px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), #f6ad55);
-            border: 2px solid var(--dark);
+            border: 3px solid var(--dark);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -175,8 +194,8 @@
 
         .vinyl-label::before {
             content: '';
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #ed8936;
             border: 2px solid var(--dark);
@@ -185,21 +204,10 @@
         .vinyl-label::after {
             content: '';
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: var(--bg-color);
-        }
-
-        /* Стрелка-индикатор на пластинке */
-        .vinyl-indicator {
-            position: absolute;
-            top: 65px;
-            width: 6px;
-            height: 20px;
-            background: linear-gradient(to bottom, var(--accent), transparent);
-            border-radius: 3px;
-            z-index: 11;
         }
 
         /* Info */
@@ -538,7 +546,6 @@
                 <div class="vinyl-grooves"></div>
                 <div class="vinyl-grooves"></div>
                 <div class="vinyl-label"></div>
-                <div class="vinyl-indicator"></div>
             </div>
         </div>
 
