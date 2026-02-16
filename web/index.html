@@ -55,31 +55,12 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         }
 
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            background: transparent;
-            border-radius: 18px;
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
+        /* Station Indicator */
+        .station-indicator {
+            text-align: center;
+            font-size: 11px;
             color: var(--grey);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            background: var(--accent);
-            color: var(--dark);
-            border-color: var(--dark);
+            margin-bottom: 10px;
         }
 
         /* Vinyl Record */
@@ -472,11 +453,9 @@
 </head>
 <body>
     <div class="app">
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab-btn" data-index="0">Focus</button>
-            <button class="tab-btn active" data-index="1">Sleep</button>
-            <button class="tab-btn" data-index="2">Sunny</button>
+        <!-- Station Indicator -->
+        <div class="track-info" style="margin-bottom: 15px;">
+            <div class="track-subtitle" id="stationIndicator">Station 1 / 11</div>
         </div>
 
         <!-- Vinyl -->
@@ -493,8 +472,8 @@
 
         <!-- Track Info -->
         <div class="track-info">
-            <div class="track-title" id="trackTitle">SomaFM Groove Salad</div>
-            <div class="track-subtitle" id="trackSubtitle">chillout · ambient · downtempo</div>
+            <div class="track-title" id="trackTitle">Lofi Girl</div>
+            <div class="track-subtitle" id="trackSubtitle">lofi hip hop · study · relax</div>
         </div>
 
         <!-- Controls -->
@@ -563,9 +542,17 @@
 
         // Radio stations
         const STATIONS = [
-            { name: "SomaFM Drone Zone", genre: "ambient · drone · sleep", url: "https://ice1.somafm.com/dronezone-128-mp3" },
+            { name: "Lofi Girl", genre: "lofi hip hop · study · relax", url: "https://play.streamafrica.net/lofiradio" },
             { name: "SomaFM Groove Salad", genre: "chillout · ambient · downtempo", url: "https://ice1.somafm.com/groovesalad-128-mp3" },
-            { name: "SomaFM PopTron", genre: "upbeat · pop · electronic", url: "https://ice1.somafm.com/poptron-128-mp3" }
+            { name: "SomaFM Drone Zone", genre: "ambient · drone · sleep", url: "https://ice1.somafm.com/dronezone-128-mp3" },
+            { name: "Chillhop Music", genre: "jazzhop · beats · chill", url: "https://stream.zeno.fm/f3wvabqykm0uv" },
+            { name: "Lofi Hip Hop Radio", genre: "beats to study/relax", url: "https://stream.zeno.fm/0r0xa792kwzuv" },
+            { name: "Soulful Lofi", genre: "soulful · jazzy · smooth", url: "https://stream.zeno.fm/vdpx4qkmkwzuv" },
+            { name: "Dreamy Lofi", genre: "dreamy · ethereal · chill", url: "https://stream.zeno.fm/57a8r4kmkwzuv" },
+            { name: "Lofi Fruits Music", genre: "fruity · upbeat · chill", url: "https://stream.zeno.fm/lofi" },
+            { name: "College Music", genre: "indie · alternative · chill", url: "https://stream.zeno.fm/college" },
+            { name: "SomaFM PopTron", genre: "upbeat · pop · electronic", url: "https://ice1.somafm.com/poptron-128-mp3" },
+            { name: "Lofi Radio", genre: "24/7 lofi beats", url: "https://live.lofiradio.ru/lofi.mp3" }
         ];
 
         // State
@@ -589,7 +576,7 @@
         const trackSubtitle = document.getElementById('trackSubtitle');
         const timerDisplay = document.getElementById('timerDisplay');
         const visualizer = document.getElementById('visualizer');
-        const tabBtns = document.querySelectorAll('.tab-btn');
+        const stationIndicator = document.getElementById('stationIndicator');
 
         // Initialize visualizer bars
         for (let i = 0; i < 15; i++) {
@@ -673,10 +660,8 @@
             trackTitle.textContent = STATIONS[index].name;
             trackSubtitle.textContent = STATIONS[index].genre;
 
-            // Update tabs
-            tabBtns.forEach((btn, i) => {
-                btn.classList.toggle('active', i === index);
-            });
+            // Update station indicator
+            stationIndicator.textContent = 'Station ' + (index + 1) + ' / ' + STATIONS.length;
 
             // Update stations list
             stationItems.forEach((item, i) => {
@@ -688,13 +673,8 @@
             }
         }
 
-        prevBtn.addEventListener('click', () => setStation((currentStation - 1 + 3) % 3));
-        nextBtn.addEventListener('click', () => setStation((currentStation + 1) % 3));
-
-        // Tab buttons
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => setStation(parseInt(btn.dataset.index)));
-        });
+        prevBtn.addEventListener('click', () => setStation((currentStation - 1 + STATIONS.length) % STATIONS.length));
+        nextBtn.addEventListener('click', () => setStation((currentStation + 1) % STATIONS.length));
 
         // Volume - fix for mobile
         function setVolume(value) {
@@ -819,9 +799,7 @@
             audio.src = STATIONS[currentStation].url;
             trackTitle.textContent = STATIONS[currentStation].name;
             trackSubtitle.textContent = STATIONS[currentStation].genre;
-            tabBtns.forEach((btn, i) => {
-                btn.classList.toggle('active', i === currentStation);
-            });
+            stationIndicator.textContent = 'Station ' + (currentStation + 1) + ' / ' + STATIONS.length;
             if (wasPlaying) {
                 setTimeout(() => audio.play(), 500);
             }
