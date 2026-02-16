@@ -62,11 +62,22 @@
             margin-bottom: 15px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+            padding-bottom: 5px;
         }
 
         .tabs::-webkit-scrollbar {
-            display: none;
+            height: 6px;
+        }
+
+        .tabs::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .tabs::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
         }
 
         .tab-btn {
@@ -506,8 +517,8 @@
 
         <!-- Track Info -->
         <div class="track-info">
-            <div class="track-title" id="trackTitle">Lofi Girl</div>
-            <div class="track-subtitle" id="trackSubtitle">lofi hip hop · study · relax</div>
+            <div class="track-title" id="trackTitle">SomaFM Drone Zone</div>
+            <div class="track-subtitle" id="trackSubtitle">ambient · drone · sleep</div>
         </div>
 
         <!-- Controls -->
@@ -576,21 +587,21 @@
 
         // Radio stations - проверенные рабочие потоки
         const STATIONS = [
+            { name: "SomaFM Drone Zone", genre: "ambient · drone · sleep", url: "https://ice1.somafm.com/dronezone-128-mp3" },
+            { name: "Smooth Chill", genre: "smooth · chillout · relax", url: "https://media-ssl.musicradio.com/SmoothChill" },
             { name: "Lofi Girl", genre: "lofi hip hop · study · relax", url: "https://play.streamafrica.net/lofiradio" },
             { name: "SomaFM Groove Salad", genre: "chillout · ambient · downtempo", url: "https://ice1.somafm.com/groovesalad-128-mp3" },
-            { name: "SomaFM Drone Zone", genre: "ambient · drone · sleep", url: "https://ice1.somafm.com/dronezone-128-mp3" },
+            { name: "Lofi Hip Hop Radio", genre: "beats to study/relax", url: "https://live.radiospinner.com/lofi-hip-hop-64" },
             { name: "SomaFM PopTron", genre: "upbeat · pop · electronic", url: "https://ice1.somafm.com/poptron-128-mp3" },
             { name: "SomaFM Secret Agent", genre: "liquid drum n bass · chill", url: "https://ice1.somafm.com/secretagent-128-mp3" },
-            { name: "SomaFM Def Con", genre: "industrial · noise · techno", url: "https://ice1.somafm.com/defcon-128-mp3" },
-            { name: "Lofi Hip Hop Radio", genre: "beats to study/relax", url: "https://live.radiospinner.com/lofi-hip-hop-64" },
-            { name: "Smooth Chill", genre: "smooth · chillout · relax", url: "https://media-ssl.musicradio.com/SmoothChill" },
             { name: "Ibiza Global Radio", genre: "chill house · balearic · sunset", url: "https://ibizaglobalradio.streaming-pro.com:8024/ibizaglobalradio.mp3" },
+            { name: "DI.FM Lofi Hip-Hop", genre: "lofi · hiphop · beats", url: "https://prem2.di.fm/lofihiphop" },
             { name: "Radio Paradise", genre: "eclectic · rock · alternative", url: "https://stream.radioparadise.com/rock-128" },
-            { name: "DI.FM Lofi Hip-Hop", genre: "lofi · hiphop · beats", url: "https://prem2.di.fm/lofihiphop" }
+            { name: "SomaFM Def Con", genre: "industrial · noise · techno", url: "https://ice1.somafm.com/defcon-128-mp3" }
         ];
 
         // State
-        let currentStation = 1;
+        let currentStation = 0;
         let isPlaying = false;
         let audio = null;
         let sleepTimer = null;
@@ -630,6 +641,12 @@
             stationTabs.appendChild(btn);
         });
         const tabBtns = document.querySelectorAll('.tab-btn');
+
+        // Scroll tabs with mouse wheel
+        stationTabs.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            stationTabs.scrollLeft += e.deltaY;
+        });
 
         // Initialize stations list
         const stationsList = document.getElementById('stationsList');
