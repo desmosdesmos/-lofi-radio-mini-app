@@ -839,7 +839,28 @@
         stationsClose.addEventListener('click', () => {
             stationsModal.classList.remove('active');
             // Переключаем станцию с воспроизведением
-            setStation(currentStation);
+            const index = currentStation;
+            initAudio();
+            
+            const wasPlaying = isPlaying;
+            audio.pause();
+            audio.src = STATIONS[index].url;
+            trackTitle.textContent = STATIONS[index].name;
+            trackSubtitle.textContent = STATIONS[index].genre;
+            
+            // Update tabs
+            tabBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            
+            // Update stations list
+            stationItems.forEach((item, i) => {
+                item.classList.toggle('selected', i === index);
+            });
+            
+            if (wasPlaying) {
+                setTimeout(() => audio.play(), 500);
+            }
         });
 
         // Share button
