@@ -571,7 +571,7 @@
         // State
         let currentStation = 1;
         let isPlaying = false;
-        let audio = new Audio();
+        let audio = null;
         let sleepTimer = null;
         let sleepEndTime = null;
         let countdownInterval = null;
@@ -614,12 +614,42 @@
         });
         const stationItems = document.querySelectorAll('.station-item');
 
-        // Audio setup
-        audio.src = STATIONS[currentStation].url;
-        audio.volume = 0.7;
+        // Audio setup - инициализация при первом взаимодействии
+        function initAudio() {
+            if (!audio) {
+                audio = new Audio();
+                audio.src = STATIONS[currentStation].url;
+                audio.volume = 0.7;
+                audio.preload = 'none';
+                
+                // Setup audio events
+                audio.addEventListener('play', () => {
+                    isPlaying = true;
+                    playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                    vinyl.classList.add('playing');
+                    startVisualizer();
+                });
+
+                audio.addEventListener('pause', () => {
+                    isPlaying = false;
+                    playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                    vinyl.classList.remove('playing');
+                    stopVisualizer();
+                });
+
+                audio.addEventListener('error', (e) => {
+                    console.error('Audio error:', e);
+                    isPlaying = false;
+                    playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                    vinyl.classList.remove('playing');
+                    stopVisualizer();
+                });
+            }
+        }
 
         // Play/Pause
         function togglePlay() {
+            initAudio();
             if (isPlaying) {
                 audio.pause();
             } else {
@@ -629,31 +659,11 @@
 
         playBtn.addEventListener('click', togglePlay);
 
-        audio.addEventListener('play', () => {
-            isPlaying = true;
-            playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-            vinyl.classList.add('playing');
-            startVisualizer();
-        });
-
-        audio.addEventListener('pause', () => {
-            isPlaying = false;
-            playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-            vinyl.classList.remove('playing');
-            stopVisualizer();
-        });
-
-        audio.addEventListener('error', (e) => {
-            console.error('Audio error:', e);
-            isPlaying = false;
-            playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-            vinyl.classList.remove('playing');
-            stopVisualizer();
-        });
-
         // Station navigation
         function setStation(index) {
             if (index === currentStation) return;
+            
+            initAudio();
 
             currentStation = index;
             const wasPlaying = isPlaying;
@@ -688,22 +698,26 @@
 
         // Volume - fix for mobile
         function setVolume(value) {
-            audio.volume = value / 100;
+            const vol = value / 100;
+            audio.volume = vol;
             volumeValue.textContent = value + '%';
             volumeSlider.value = value;
+            console.log('Volume set to:', vol);
         }
 
+        // Обработка событий ползунка
         volumeSlider.addEventListener('input', (e) => {
             setVolume(e.target.value);
         });
 
-        volumeSlider.addEventListener('change', (e) => {
+        // Для мобильных устройств
+        volumeSlider.addEventListener('touchstart', (e) => {
             setVolume(e.target.value);
-        });
+        }, { passive: true });
 
         volumeSlider.addEventListener('touchmove', (e) => {
             setVolume(e.target.value);
-        });
+        }, { passive: true });
 
         volumeSlider.addEventListener('touchend', (e) => {
             setVolume(e.target.value);
@@ -798,7 +812,19 @@
 
         stationsClose.addEventListener('click', () => {
             stationsModal.classList.remove('active');
-            setStation(currentStation);
+            // Переключаем станцию с воспроизведением
+            initAudio();
+            const wasPlaying = isPlaying;
+            audio.pause();
+            audio.src = STATIONS[currentStation].url;
+            trackTitle.textContent = STATIONS[currentStation].name;
+            trackSubtitle.textContent = STATIONS[currentStation].genre;
+            tabBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === currentStation);
+            });
+            if (wasPlaying) {
+                setTimeout(() => audio.play(), 500);
+            }
         });
 
         // Share button
