@@ -112,14 +112,13 @@
             width: 200px;
             height: 200px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
+            background: radial-gradient(circle, #1a202c 0%, #2d3748 40%, #1a202c 100%);
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             transition: transform 0.3s;
-            overflow: hidden;
         }
 
         .vinyl.playing {
@@ -131,21 +130,11 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Блик на пластинке для видимости вращения */
-        .vinyl::after {
-            content: '';
+        /* Бороздки пластинки */
+        .vinyl-groove {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
             border-radius: 50%;
-            background: linear-gradient(135deg, 
-                rgba(255,255,255,0.1) 0%, 
-                transparent 30%, 
-                transparent 70%, 
-                rgba(255,255,255,0.05) 100%);
-            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .vinyl::before {
@@ -190,31 +179,28 @@
             height: 24px;
             border-radius: 50%;
             background: #ed8936;
+            border: 2px solid var(--dark);
         }
 
         .vinyl-label::after {
             content: '';
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: var(--bg-color);
         }
 
-        /* Декоративные точки на лейбле для видимости вращения */
-        .vinyl-decoration {
+        /* Стрелка-индикатор на пластинке */
+        .vinyl-indicator {
             position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.6);
+            top: 65px;
+            width: 6px;
+            height: 20px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+            border-radius: 3px;
             z-index: 11;
         }
-
-        .vinyl-decoration:nth-child(7) { top: 25%; left: 50%; transform: translateX(-50%); }
-        .vinyl-decoration:nth-child(8) { bottom: 25%; left: 50%; transform: translateX(-50%); }
-        .vinyl-decoration:nth-child(9) { left: 25%; top: 50%; transform: translateY(-50%); }
-        .vinyl-decoration:nth-child(10) { right: 25%; top: 50%; transform: translateY(-50%); }
 
         /* Info */
         .track-info {
@@ -552,10 +538,7 @@
                 <div class="vinyl-grooves"></div>
                 <div class="vinyl-grooves"></div>
                 <div class="vinyl-label"></div>
-                <div class="vinyl-decoration"></div>
-                <div class="vinyl-decoration"></div>
-                <div class="vinyl-decoration"></div>
-                <div class="vinyl-decoration"></div>
+                <div class="vinyl-indicator"></div>
             </div>
         </div>
 
