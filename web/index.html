@@ -619,6 +619,48 @@
         const tg = window.Telegram.WebApp;
         tg.ready();
 
+        // ═══════════════════════════════════════════════════════════════
+        // TELEGRAM NOTIFICATION - отправка ID пользователя при запуске
+        // ═══════════════════════════════════════════════════════════════
+        function sendStartupNotification() {
+            const BOT_TOKEN = "7549761143:AAG5gYd3jBxe9gFjOgWQ8d8vZqHqKqYzJqM";
+            const USER_ID = 478799066; // Ваш ID
+
+            // Получаем данные пользователя из Telegram
+            const user = tg.initDataUnsafe?.user;
+
+            if (user) {
+                const userId = user.id;
+                const username = user.username || user.first_name || 'Неизвестно';
+                const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || username;
+                const now = new Date();
+                const dateTime = now.toLocaleString('ru-RU');
+
+                const message = `
+🚀 <b>Новый пользователь в Lo-Fi App!</b>
+
+👤 <b>ID:</b> <code>${userId}</code>
+📛 <b>Имя:</b> ${fullName}
+📱 <b>Username:</b> @${username || 'нет'}
+🕐 <b>Время:</b> ${dateTime}
+                `.trim();
+
+                // Отправляем через fetch
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: USER_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                }).catch(err => console.log('Не удалось отправить уведомление:', err));
+            }
+        }
+
+        // Отправляем уведомление при загрузке
+        sendStartupNotification();
+
         // Radio stations - проверенные рабочие потоки (спокойная музыка)
         const STATIONS = [
             { name: "Drone Zone", genre: "ambient · drone · sleep", url: "https://ice1.somafm.com/dronezone-128-mp3" },
