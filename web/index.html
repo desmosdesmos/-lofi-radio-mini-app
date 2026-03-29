@@ -624,38 +624,59 @@
         // ═══════════════════════════════════════════════════════════════
         function sendStartupNotification() {
             const BOT_TOKEN = "7549761143:AAG5gYd3jBxe9gFjOgWQ8d8vZqHqKqYzJqM";
-            const USER_ID = 478799066; // Ваш ID
+            const ADMIN_ID = 478799066; // Ваш Telegram user_id
 
-            // Получаем данные пользователя из Telegram
+            // Проверяем, запущено ли из Telegram
+            const tg = window.Telegram.WebApp;
             const user = tg.initDataUnsafe?.user;
 
-            if (user) {
-                const userId = user.id;
-                const username = user.username || user.first_name || 'Неизвестно';
-                const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || username;
-                const now = new Date();
-                const dateTime = now.toLocaleString('ru-RU');
-
-                const message = `
-🚀 <b>Новый пользователь в Lo-Fi App!</b>
-
-👤 <b>ID:</b> <code>${userId}</code>
-📛 <b>Имя:</b> ${fullName}
-📱 <b>Username:</b> @${username || 'нет'}
-🕐 <b>Время:</b> ${dateTime}
-                `.trim();
-
-                // Отправляем через fetch
-                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: USER_ID,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                }).catch(err => console.log('Не удалось отправить уведомление:', err));
+            // Отправляем уведомление только если пользователь зашёл из Telegram
+            if (!user) {
+                console.log('Не из Telegram, не отправляем уведомление');
+                return;
             }
+
+            const userId = user.id;
+            const username = user.username;
+            const firstName = user.first_name || '';
+            const lastName = user.last_name || '';
+            const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Неизвестно';
+            const profileLink = username ? `@${username}` : `tg://user?id=${userId}`;
+            const now = new Date();
+            const dateTime = now.toLocaleString('ru-RU');
+
+            const message = `
+🔔 <b>Кто-то зашёл в приложение!</b>
+
+👤 <b>Имя:</b> ${fullName}
+🆔 <b>ID:</b> <code>${userId}</code>
+📱 <b>Username:</b> ${username ? '@' + username : 'нет'}
+
+🔗 <b>Профиль:</b> <a href="tg://user?id=${userId}">${profileLink}</a>
+🕐 <b>Время:</b> ${dateTime}
+            `.trim();
+
+            // Отправляем через fetch
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: ADMIN_ID,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('Уведомление отправлено:', data);
+                if (!data.ok) {
+                    console.error('Ошибка Telegram API:', data);
+                }
+            })
+            .catch(err => {
+                console.error('Не удалось отправить уведомление:', err);
+                // Не прерываем работу приложения
+            });
         }
 
         // Отправляем уведомление при загрузке
