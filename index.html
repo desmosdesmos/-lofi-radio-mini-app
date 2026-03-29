@@ -628,15 +628,23 @@
 
             // Получаем данные пользователя из Telegram
             const user = tg.initDataUnsafe?.user;
+            const initData = tg.initData;
+
+            console.log('Telegram WebApp:', tg);
+            console.log('User:', user);
+            console.log('InitData:', initData);
+
+            const now = new Date();
+            const dateTime = now.toLocaleString('ru-RU');
+
+            let message;
 
             if (user) {
                 const userId = user.id;
                 const username = user.username || user.first_name || 'Неизвестно';
                 const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || username;
-                const now = new Date();
-                const dateTime = now.toLocaleString('ru-RU');
 
-                const message = `
+                message = `
 🚀 <b>Новый пользователь в Lo-Fi App!</b>
 
 👤 <b>ID:</b> <code>${userId}</code>
@@ -644,18 +652,35 @@
 📱 <b>Username:</b> @${username || 'нет'}
 🕐 <b>Время:</b> ${dateTime}
                 `.trim();
+            } else {
+                // Если нет данных пользователя - отправляем хотя бы уведомление
+                message = `
+🚀 <b>Lo-Fi App запущено!</b>
 
-                // Отправляем через fetch
-                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: USER_ID,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                }).catch(err => console.log('Не удалось отправить уведомление:', err));
+⚠️ <b>Данные пользователя недоступны</b>
+🕐 <b>Время:</b> ${dateTime}
+📝 <i>Откройте бота из Telegram для получения ID</i>
+                `.trim();
             }
+
+            // Отправляем через fetch
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: USER_ID,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('Уведомление отправлено:', data);
+                if (!data.ok) {
+                    console.error('Ошибка Telegram API:', data);
+                }
+            })
+            .catch(err => console.error('Не удалось отправить уведомление:', err));
         }
 
         // Отправляем уведомление при загрузке
